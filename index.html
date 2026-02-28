@@ -9,8 +9,8 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body {
-background: #0e0e0f;
-color: #e8e6e1;
+background: #0d1117;
+color: #e2e8f0;
 font-family: ‘SF Mono’, ui-monospace, ‘Menlo’, ‘Courier New’, monospace;
 min-height: 100vh;
 }
@@ -18,18 +18,18 @@ min-height: 100vh;
 body { padding: 1.5rem 1rem 4rem; }
 
 :root {
-–bg: #0e0e0f;
-–surface: #161618;
-–surface2: #1e1e21;
-–border: #2a2a2e;
-–text: #e8e6e1;
-–muted: #6b6b72;
-–accent: #c8a96e;
-–accent2: #7c9e87;
+–bg: #0d1117;
+–surface: #161b27;
+–surface2: #1c2333;
+–border: #2a3349;
+–text: #e2e8f0;
+–muted: #64748b;
+–accent: #6fb58a;
+–accent2: #4a9970;
 –t1: #e05c5c; –t1-bg: #2a1515;
 –t2: #d4874a; –t2-bg: #271a0e;
-–t3: #c8a96e; –t3-bg: #24200f;
-–t4: #7c9e87; –t4-bg: #111d14;
+–t3: #6fb58a; –t3-bg: #0d2018;
+–t4: #4a9970; –t4-bg: #0a1c14;
 }
 
 /* ── SYNC BAR ── */
@@ -66,7 +66,7 @@ padding: 0.5rem 0.75rem; border-radius: 6px; outline: none;
 .config-banner .cb-btn {
 margin-top: 0.5rem;
 display: inline-block;
-background: var(–accent); color: #0e0e0f; border: none;
+background: var(–accent); color: #0d1117; border: none;
 font-family: inherit; font-size: 0.72rem; font-weight: 600;
 padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer;
 -webkit-appearance: none;
@@ -101,7 +101,7 @@ transition: border-color 0.15s, color 0.15s;
 }
 .ep-btn:active { opacity: 0.75; }
 .ep-btn.danger:active, .ep-btn.danger:hover { border-color: var(–t1); color: var(–t1); }
-.ep-btn.accent { background: var(–accent); border-color: var(–accent); color: #0e0e0f; font-weight: 600; }
+.ep-btn.accent { background: var(–accent); border-color: var(–accent); color: #0d1117; font-weight: 600; }
 .ep-btn.accent:active { opacity: 0.8; }
 .ep-btn.outline-accent { border-color: var(–accent); color: var(–accent); }
 
@@ -202,7 +202,7 @@ padding: 0.26rem 0.65rem; border-radius: 20px; cursor: pointer;
 -webkit-appearance: none; -webkit-tap-highlight-color: transparent;
 letter-spacing: 0.04em; transition: all 0.15s;
 }
-.filter-btn.active { background: var(–accent); border-color: var(–accent); color: #0e0e0f; }
+.filter-btn.active { background: var(–accent); border-color: var(–accent); color: #0d1117; }
 
 /* ── BOARD ── */
 .board { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.4rem; }
@@ -314,7 +314,7 @@ display: flex; flex-direction: column; gap: 2px;
 
 .cal-day-num { font-size: 0.65rem; color: var(–muted); line-height: 1; }
 .cal-day.today .cal-day-num {
-background: var(–accent); color: #0e0e0f;
+background: var(–accent); color: #0d1117;
 width: 18px; height: 18px; border-radius: 50%;
 display: flex; align-items: center; justify-content: center; font-size: 0.6rem;
 }
@@ -380,7 +380,7 @@ padding: 0.75rem 1rem; border-radius: 6px; cursor: pointer;
 text-align: left; display: flex; align-items: center; gap: 0.65rem;
 -webkit-appearance: none; -webkit-tap-highlight-color: transparent;
 }
-.menu-item.active { background: var(–accent); border-color: var(–accent); color: #0e0e0f; }
+.menu-item.active { background: var(–accent); border-color: var(–accent); color: #0d1117; }
 .menu-item-icon { font-size: 0.95rem; }
 
 /* ── DAY POPUP ── */
@@ -415,7 +415,7 @@ padding: 0.16rem 0.38rem; border-radius: 3px; flex-shrink: 0; margin-top: 1px;
 
 /* ── LOADING ── */
 .loading-overlay {
-position: fixed; inset: 0; background: #0e0e0f;
+position: fixed; inset: 0; background: #0d1117;
 display: flex; flex-direction: column; align-items: center; justify-content: center;
 z-index: 500; transition: opacity 0.35s;
 }
