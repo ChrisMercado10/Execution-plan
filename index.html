@@ -8,6 +8,11 @@
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+html {
+color-scheme: dark;
+background: #0d1117;
+}
+
 html, body {
 background: #0d1117;
 color: #e2e8f0;
@@ -16,6 +21,13 @@ min-height: 100vh;
 }
 
 body { padding: 1.5rem 1rem 4rem; }
+
+input, textarea, button {
+-webkit-appearance: none;
+appearance: none;
+color-scheme: dark;
+font-family: inherit;
+}
 
 :root {
 –bg: #0d1117;
@@ -57,16 +69,16 @@ font-size: 0.73rem; line-height: 1.6; color: var(–text);
 .config-banner strong { color: var(–t2); }
 .config-banner .cb-input {
 display: block; width: 100%; margin-top: 0.6rem;
-background: var(–surface2); border: 1px solid var(–border);
-color: var(–text); font-family: inherit; font-size: 0.73rem;
+background: #1c2333 !important; border: 1px solid #2a3349 !important;
+color: #e2e8f0 !important; font-family: inherit; font-size: 0.73rem;
 padding: 0.5rem 0.75rem; border-radius: 6px; outline: none;
 -webkit-appearance: none;
 }
-.config-banner .cb-input:focus { border-color: var(–accent); }
+.config-banner .cb-input:focus { border-color: #6fb58a !important; }
 .config-banner .cb-btn {
 margin-top: 0.5rem;
 display: inline-block;
-background: var(–accent); color: #0d1117; border: none;
+background: #6fb58a !important; color: #0d1117 !important; border: none;
 font-family: inherit; font-size: 0.72rem; font-weight: 600;
 padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer;
 -webkit-appearance: none;
@@ -92,7 +104,7 @@ margin-top: 0.3rem; letter-spacing: 0.08em; text-transform: uppercase;
 /* ── BUTTONS (pure div/button, no native chrome) ── */
 .ep-btn {
 display: inline-flex; align-items: center; justify-content: center;
-background: var(–surface); border: 1px solid var(–border); color: var(–muted);
+background: #161b27 !important; border: 1px solid #2a3349 !important; color: #64748b !important;
 font-family: inherit; font-size: 0.68rem; letter-spacing: 0.05em;
 padding: 0.45rem 0.85rem; border-radius: 6px; cursor: pointer;
 -webkit-appearance: none; appearance: none; white-space: nowrap;
@@ -101,12 +113,12 @@ transition: border-color 0.15s, color 0.15s;
 }
 .ep-btn:active { opacity: 0.75; }
 .ep-btn.danger:active, .ep-btn.danger:hover { border-color: var(–t1); color: var(–t1); }
-.ep-btn.accent { background: var(–accent); border-color: var(–accent); color: #0d1117; font-weight: 600; }
+.ep-btn.accent { background: #6fb58a !important; border-color: #6fb58a !important; color: #0d1117 !important; font-weight: 600; }
 .ep-btn.accent:active { opacity: 0.8; }
-.ep-btn.outline-accent { border-color: var(–accent); color: var(–accent); }
+.ep-btn.outline-accent { border-color: #6fb58a !important; color: #6fb58a !important; }
 
 .menu-btn {
-background: var(–surface); border: 1px solid var(–border);
+background: #161b27 !important; border: 1px solid #2a3349 !important;
 width: 36px; height: 36px; border-radius: 6px; cursor: pointer;
 display: flex; flex-direction: column; align-items: center; justify-content: center;
 gap: 4px; -webkit-appearance: none; -webkit-tap-highlight-color: transparent;
@@ -120,7 +132,7 @@ position: relative; display: inline-block;
 }
 .ep-select-btn {
 display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
-background: var(–surface); border: 1px solid var(–border); color: var(–text);
+background: #161b27 !important; border: 1px solid #2a3349 !important; color: #e2e8f0 !important;
 font-family: inherit; font-size: 0.75rem;
 padding: 0.5rem 0.75rem; border-radius: 6px; cursor: pointer;
 -webkit-appearance: none; -webkit-tap-highlight-color: transparent;
@@ -148,14 +160,17 @@ transition: background 0.1s;
 
 /* ── INPUTS ── */
 .ep-input {
-background: var(–surface); border: 1px solid var(–border);
-color: var(–text); font-family: inherit; font-size: 0.78rem;
+background: #161b27 !important;
+-webkit-background-clip: padding-box !important;
+border: 1px solid #2a3349 !important;
+color: #e2e8f0 !important;
+font-family: inherit; font-size: 0.78rem;
 padding: 0.5rem 0.75rem; border-radius: 6px; outline: none;
 -webkit-appearance: none; appearance: none; width: 100%;
 transition: border-color 0.2s;
 }
-.ep-input:focus { border-color: var(–accent); }
-.ep-input::placeholder { color: var(–muted); }
+.ep-input:focus { border-color: var(–accent) !important; }
+.ep-input::placeholder { color: #64748b !important; opacity: 1; }
 
 textarea.ep-input { min-height: 72px; resize: vertical; }
 
@@ -196,13 +211,13 @@ max-width: 900px; margin: 0 auto 1.25rem;
 display: flex; gap: 0.4rem; flex-wrap: wrap;
 }
 .filter-btn {
-background: var(–surface); border: 1px solid var(–border); color: var(–muted);
+background: #161b27 !important; border: 1px solid #2a3349 !important; color: #64748b !important;
 font-family: inherit; font-size: 0.65rem;
 padding: 0.26rem 0.65rem; border-radius: 20px; cursor: pointer;
 -webkit-appearance: none; -webkit-tap-highlight-color: transparent;
 letter-spacing: 0.04em; transition: all 0.15s;
 }
-.filter-btn.active { background: var(–accent); border-color: var(–accent); color: #0d1117; }
+.filter-btn.active { background: #6fb58a !important; border-color: #6fb58a !important; color: #0d1117 !important; }
 
 /* ── BOARD ── */
 .board { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.4rem; }
@@ -411,7 +426,7 @@ padding: 0.16rem 0.38rem; border-radius: 3px; flex-shrink: 0; margin-top: 1px;
 .confirm-label { display: flex; align-items: center; gap: 0.5rem; font-size: 0.72rem; color: var(–text); margin-bottom: 0.9rem; cursor: pointer; }
 .confirm-label input[type=“checkbox”] { accent-color: var(–accent); width: 14px; height: 14px; }
 
-.ep-btn.red { background: var(–t1); border-color: var(–t1); color: white; }
+.ep-btn.red { background: #e05c5c !important; border-color: #e05c5c !important; color: white !important; }
 
 /* ── LOADING ── */
 .loading-overlay {
