@@ -5,334 +5,532 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Execution Plan</title>
-
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap');
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  :root {
-    --bg: #0e0e0f;
-    --surface: #161618;
-    --surface2: #1e1e21;
-    --border: #2a2a2e;
-    --text: #e8e6e1;
-    --muted: #6b6b72;
-    --accent: #c8a96e;
-    --accent2: #7c9e87;
-    --t1: #e05c5c; --t1-bg: #2a1515;
-    --t2: #d4874a; --t2-bg: #271a0e;
-    --t3: #c8a96e; --t3-bg: #24200f;
-    --t4: #7c9e87; --t4-bg: #111d14;
-  }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Mono', 'Menlo', 'Monaco', 'Courier New', monospace;
-    min-height: 100vh;
-    padding: 2rem 1rem 4rem;
-  }
+:root {
+–bg: #0e0e0f;
+–surface: #161618;
+–surface2: #1e1e21;
+–border: #2a2a2e;
+–text: #e8e6e1;
+–muted: #6b6b72;
+–accent: #c8a96e;
+–accent2: #7c9e87;
+–t1: #e05c5c; –t1-bg: #2a1515;
+–t2: #d4874a; –t2-bg: #271a0e;
+–t3: #c8a96e; –t3-bg: #24200f;
+–t4: #7c9e87; –t4-bg: #111d14;
+–font-display: ‘DM Serif Display’, ‘Georgia’, serif;
+–font-mono: ‘DM Mono’, ‘Menlo’, ‘Monaco’, ‘Courier New’, monospace;
+}
 
-  /* SYNC STATUS */
-  .sync-bar {
-    max-width: 900px; margin: 0 auto 1rem;
-    display: flex; align-items: center; gap: 0.5rem;
-    font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
-  }
-  .sync-dot {
-    width: 7px; height: 7px; border-radius: 50%;
-    background: var(--muted); flex-shrink: 0; transition: background 0.3s;
-  }
-  .sync-dot.syncing { background: var(--t3); animation: pulse 1s infinite; }
-  .sync-dot.synced  { background: var(--accent2); }
-  .sync-dot.error   { background: var(--t1); }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+body {
+background: var(–bg);
+color: var(–text);
+font-family: var(–font-mono);
+min-height: 100vh;
+padding: 2rem 1rem 4rem;
+}
 
-  /* CONFIG BANNER */
-  .config-banner {
-    max-width: 900px; margin: 0 auto 1.5rem;
-    background: var(--t2-bg); border: 1px solid var(--t2);
-    border-radius: 6px; padding: 1rem 1.2rem;
-    font-size: 0.75rem; line-height: 1.6; color: var(--text);
-  }
-  .config-banner strong { color: var(--t2); }
-  .config-banner input {
-    display: block; width: 100%; margin-top: 0.75rem;
-    background: var(--surface2); border: 1px solid var(--border);
-    color: var(--text); font-family: 'DM Mono', 'Menlo', 'Monaco', 'Courier New', monospace; font-size: 0.75rem;
-    padding: 0.5rem 0.75rem; border-radius: 4px; outline: none;
-  }
-  .config-banner input:focus { border-color: var(--accent); }
-  .config-banner button {
-    margin-top: 0.6rem; background: var(--accent); color: #0e0e0f; border: none;
-    font-family: 'DM Mono', 'Menlo', 'Monaco', 'Courier New', monospace; font-size: 0.72rem; font-weight: 500;
-    padding: 0.45rem 1rem; border-radius: 4px; cursor: pointer; transition: opacity 0.15s;
-  }
-  .config-banner button:hover { opacity: 0.85; }
+/* ── SYNC BAR ── */
+.sync-bar {
+max-width: 900px; margin: 0 auto 1rem;
+display: flex; align-items: center; gap: 0.5rem;
+font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(–muted);
+}
+.sync-dot {
+width: 7px; height: 7px; border-radius: 50%;
+background: var(–muted); flex-shrink: 0; transition: background 0.3s;
+}
+.sync-dot.syncing { background: var(–t3); animation: pulse 1s infinite; }
+.sync-dot.synced  { background: var(–accent2); }
+.sync-dot.error   { background: var(–t1); }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
-  header {
-    max-width: 900px; margin: 0 auto 2rem;
-    border-bottom: 1px solid var(--border); padding-bottom: 1.25rem;
-    display: flex; align-items: flex-end; justify-content: space-between;
-    gap: 1rem; flex-wrap: wrap;
-  }
-  header h1 {
-    font-family: 'DM Serif Display', 'Georgia', serif;
-    font-size: clamp(1.8rem, 5vw, 3rem); font-weight: 400;
-    letter-spacing: -0.5px; color: var(--accent); line-height: 1;
-  }
-  header .date-line {
-    font-size: 0.72rem; color: var(--muted);
-    margin-top: 0.4rem; letter-spacing: 0.08em; text-transform: uppercase;
-  }
-  .reset-btn {
-    background: none; border: 1px solid var(--border); color: var(--muted);
-    font-family: 'DM Mono', 'Menlo', 'Monaco', 'Courier New', monospace; font-size: 0.68rem;
-    padding: 0.4rem 0.9rem; border-radius: 4px; cursor: pointer;
-    letter-spacing: 0.06em; transition: all 0.2s; white-space: nowrap; flex-shrink: 0;
-  }
-  .reset-btn:hover { border-color: var(--t1); color: var(--t1); }
+/* ── CONFIG BANNER ── */
+.config-banner {
+max-width: 900px; margin: 0 auto 1.5rem;
+background: var(–t2-bg); border: 1px solid var(–t2);
+border-radius: 6px; padding: 1rem 1.2rem;
+font-size: 0.75rem; line-height: 1.6; color: var(–text);
+}
+.config-banner strong { color: var(–t2); }
+.config-banner input {
+display: block; width: 100%; margin-top: 0.75rem;
+background: var(–surface2); border: 1px solid var(–border);
+color: var(–text); font-family: var(–font-mono); font-size: 0.75rem;
+padding: 0.5rem 0.75rem; border-radius: 4px; outline: none;
+}
+.config-banner input:focus { border-color: var(–accent); }
+.config-banner button {
+margin-top: 0.6rem; background: var(–accent); color: #0e0e0f; border: none;
+font-family: var(–font-mono); font-size: 0.72rem; font-weight: 500;
+padding: 0.45rem 1rem; border-radius: 4px; cursor: pointer; transition: opacity 0.15s;
+}
+.config-banner button:hover { opacity: 0.85; }
 
-  /* MODAL */
-  .modal-backdrop {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.72);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.2s;
-  }
-  .modal-backdrop.open { opacity: 1; pointer-events: all; }
-  .modal {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 8px; padding: 1.5rem; width: min(440px, 92vw);
-    transform: translateY(10px); transition: transform 0.2s;
-  }
-  .modal-backdrop.open .modal { transform: translateY(0); }
-  .modal h2 {
-    font-family: 'DM Serif Display', 'Georgia', serif; font-size: 1.3rem;
-    font-weight: 400; color: var(--accent); margin-bottom: 0.35rem;
-  }
-  .modal p { font-size: 0.73rem; color: var(--muted); margin-bottom: 1.2rem; line-height: 1.5; }
-  .modal-fields { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.2rem; }
-  .modal-fields input[type="text"],
-  .modal-fields input[type="date"],
-  .modal-fields select,
-  .modal-fields textarea {
-    width: 100%; background: var(--surface2); border: 1px solid var(--border);
-    color: var(--text); font-family: 'DM Mono', 'Menlo', 'Monaco', 'Courier New', monospace; font-size: 0.78rem;
-    padding: 0.55rem 0.75rem; border-radius: 4px; outline: none;
-    transition: border-color 0.2s; resize: vertical;
-  }
-  .modal-fields input:focus, .modal-fields select:focus, .modal-fields textarea:focus { border-color: var(--accent); }
-  .modal-fields textarea { min-height: 72px; }
-  .modal-fields input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.5); cursor: pointer; }
-  .modal-row { display: flex; gap: 0.6rem; }
-  .modal-row > * { flex: 1; }
-  .field-label { font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.28rem; }
-  .modal-actions { display: flex; gap: 0.6rem; justify-content: flex-end; }
-  .btn-primary {
-    background: var(--accent); color: #0e0e0f; border: none;
-    font-family: 'DM Mono', 'Menlo', 'Monaco', 'Courier New', monospace; font-size: 0.75rem; font-weight: 500;
-    padding: 0.5rem 1.2rem; border-radius: 4px; cursor: pointer; transition: opacity 0.15s;
-  }
-  .btn-primary:hover { opacity: 0.85; }
-  .btn-ghost {
-    background: none; border: 1px solid var(--border); color: var(--muted);
-    font-family: 'DM Mono', 'Menlo', 'Monaco', 'Courier New', monospace; font-size: 0.75rem;
-    padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; transition: all 0.15s;
-  }
-  .btn-ghost:hover { border-color: var(--muted); color: var(--text); }
+/* ── HEADER ── */
+header {
+max-width: 900px; margin: 0 auto 2rem;
+border-bottom: 1px solid var(–border); padding-bottom: 1.25rem;
+display: flex; align-items: flex-end; justify-content: space-between;
+gap: 1rem; flex-wrap: wrap;
+}
+header h1 {
+font-family: var(–font-display);
+font-size: clamp(1.8rem, 5vw, 3rem); font-weight: 400;
+letter-spacing: -0.5px; color: var(–accent); line-height: 1;
+}
+header .date-line {
+font-size: 0.72rem; color: var(–muted);
+margin-top: 0.4rem; letter-spacing: 0.08em; text-transform: uppercase;
+}
+.header-actions { display: flex; align-items: center; gap: 0.6rem; flex-shrink: 0; }
 
-  /* TOOLBAR */
-  .toolbar {
-    max-width: 900px; margin: 0 auto 1rem;
-    display: flex; gap: 0.65rem; flex-wrap: wrap; align-items: center;
-  }
-  .toolbar input[type="text"] {
-    flex: 1; min-width: 160px; background: var(--surface); border: 1px solid var(--border);
-    color: var(--text); font-family: 'DM Mono', 'Menlo', 'Monaco', 'Courier New', monospace; font-size: 0.75rem;
-    padding: 0.5rem 0.75rem; border-radius: 4px; outline: none; transition: border-color 0.2s;
-  }
-  .toolbar input[type="text"]:focus { border-color: var(--accent); }
-  .toolbar select {
-    background: var(--surface); border: 1px solid var(--border);
-    color: var(--text); font-family: 'DM Mono', 'Menlo', 'Monaco', 'Courier New', monospace; font-size: 0.75rem;
-    padding: 0.5rem 0.6rem; border-radius: 4px; outline: none; transition: border-color 0.2s;
-  }
-  .toolbar select:focus { border-color: var(--accent); }
-  .toolbar .add-btn {
-    background: var(--accent); color: #0e0e0f; border: none;
-    font-family: 'DM Mono', 'Menlo', 'Monaco', 'Courier New', monospace; font-size: 0.75rem; font-weight: 500;
-    padding: 0.5rem 1.2rem; border-radius: 4px; cursor: pointer;
-    letter-spacing: 0.05em; transition: opacity 0.15s; white-space: nowrap;
-  }
-  .toolbar .add-btn:hover { opacity: 0.85; }
+.reset-btn {
+background: none; border: 1px solid var(–border); color: var(–muted);
+font-family: var(–font-mono); font-size: 0.68rem;
+padding: 0.4rem 0.9rem; border-radius: 4px; cursor: pointer;
+letter-spacing: 0.06em; transition: all 0.2s; white-space: nowrap;
+}
+.reset-btn:hover { border-color: var(–t1); color: var(–t1); }
 
-  /* CAT MANAGER */
-  .cat-manager {
-    max-width: 900px; margin: 0 auto 1.25rem;
-    display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;
-  }
-  .cat-manager input {
-    background: var(--surface); border: 1px solid var(--border);
-    color: var(--text); font-family: 'DM Mono', 'Menlo', 'Monaco', 'Courier New', monospace; font-size: 0.75rem;
-    padding: 0.4rem 0.75rem; border-radius: 4px; outline: none; width: 155px; transition: border-color 0.2s;
-  }
-  .cat-manager input:focus { border-color: var(--accent); }
-  .cat-manager .cat-add-btn {
-    background: none; border: 1px solid var(--accent); color: var(--accent);
-    font-family: 'DM Mono', 'Menlo', 'Monaco', 'Courier New', monospace; font-size: 0.7rem; padding: 0.4rem 0.85rem;
-    border-radius: 4px; cursor: pointer; letter-spacing: 0.05em; transition: all 0.15s; white-space: nowrap;
-  }
-  .cat-manager .cat-add-btn:hover { background: var(--accent); color: #0e0e0f; }
-  .cat-manager-label { font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
-  .custom-cat-tag {
-    display: inline-flex; align-items: center; gap: 0.35rem;
-    font-size: 0.63rem; letter-spacing: 0.08em; text-transform: uppercase;
-    padding: 0.22rem 0.5rem; border-radius: 3px;
-    background: var(--surface2); border: 1px solid var(--border); color: var(--muted);
-  }
-  .custom-cat-tag button {
-    background: none; border: none; color: var(--muted);
-    cursor: pointer; font-size: 0.7rem; padding: 0; line-height: 1; transition: color 0.15s;
-  }
-  .custom-cat-tag button:hover { color: var(--t1); }
+/* MENU BUTTON */
+.menu-btn {
+background: none; border: 1px solid var(–border); color: var(–muted);
+width: 34px; height: 34px; border-radius: 4px; cursor: pointer;
+display: flex; flex-direction: column; align-items: center; justify-content: center;
+gap: 4px; transition: all 0.2s; flex-shrink: 0; padding: 0;
+}
+.menu-btn span {
+display: block; width: 14px; height: 1.5px;
+background: var(–muted); border-radius: 2px; transition: background 0.2s;
+}
+.menu-btn:hover { border-color: var(–accent); }
+.menu-btn:hover span { background: var(–accent); }
+.menu-btn.active { border-color: var(–accent); background: var(–accent); }
+.menu-btn.active span { background: #0e0e0f; }
 
-  /* FILTER BAR */
-  .filter-bar {
-    max-width: 900px; margin: 0 auto 1.5rem;
-    display: flex; gap: 0.45rem; flex-wrap: wrap;
-  }
-  .filter-btn {
-    background: none; border: 1px solid var(--border); color: var(--muted);
-    font-family: 'DM Mono', 'Menlo', 'Monaco', 'Courier New', monospace; font-size: 0.68rem;
-    padding: 0.28rem 0.72rem; border-radius: 20px; cursor: pointer;
-    transition: all 0.15s; letter-spacing: 0.05em;
-  }
-  .filter-btn:hover { border-color: var(--accent); color: var(--accent); }
-  .filter-btn.active { background: var(--accent); border-color: var(--accent); color: #0e0e0f; }
+/* ── SLIDE-IN MENU PANEL ── */
+.menu-panel-backdrop {
+position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+z-index: 150; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+}
+.menu-panel-backdrop.open { opacity: 1; pointer-events: all; }
 
-  /* BOARD */
-  .board { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.5rem; }
-  .tier-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.65rem; }
-  .tier-label {
-    font-size: 0.62rem; letter-spacing: 0.15em; text-transform: uppercase;
-    font-weight: 500; padding: 0.22rem 0.55rem; border-radius: 3px;
-  }
-  .tier-1 .tier-label { background: var(--t1-bg); color: var(--t1); border: 1px solid var(--t1); }
-  .tier-2 .tier-label { background: var(--t2-bg); color: var(--t2); border: 1px solid var(--t2); }
-  .tier-3 .tier-label { background: var(--t3-bg); color: var(--t3); border: 1px solid var(--t3); }
-  .tier-4 .tier-label { background: var(--t4-bg); color: var(--t4); border: 1px solid var(--t4); }
-  .tier-name { font-family: 'DM Serif Display', 'Georgia', serif; font-size: 1.05rem; font-weight: 400; }
-  .tier-count { font-size: 0.68rem; color: var(--muted); margin-left: auto; }
-  .tier-divider { height: 1px; background: var(--border); flex: 1; }
-  .tasks-list { display: flex; flex-direction: column; gap: 0.45rem; }
+.menu-panel {
+position: fixed; top: 0; right: 0; bottom: 0;
+width: min(280px, 85vw);
+background: var(–surface);
+border-left: 1px solid var(–border);
+z-index: 160;
+transform: translateX(100%);
+transition: transform 0.25s ease;
+display: flex; flex-direction: column;
+padding: 1.5rem 1.2rem;
+gap: 0.5rem;
+}
+.menu-panel-backdrop.open .menu-panel { transform: translateX(0); }
 
-  /* TASK CARD */
-  .task-card {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 6px; overflow: hidden;
-    transition: border-color 0.15s, opacity 0.3s; animation: slideIn 0.2s ease;
-  }
-  @keyframes slideIn { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
-  .task-card.done { opacity: 0.42; }
-  .task-card.done .task-text { text-decoration: line-through; color: var(--muted); }
-  .task-card:hover { border-color: #3a3a40; }
-  .task-card.overdue { border-color: var(--t1) !important; }
-  .task-card.due-today { border-color: var(--t3) !important; }
-  .task-main { padding: 0.72rem 0.9rem; display: flex; align-items: center; gap: 0.75rem; }
-  .task-check {
-    width: 17px; height: 17px; border-radius: 50%; border: 1.5px solid var(--border);
-    background: none; cursor: pointer; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    transition: all 0.15s; font-size: 9px; color: transparent;
-  }
-  .task-check:hover { border-color: var(--accent2); }
-  .task-card.done .task-check { background: var(--accent2); border-color: var(--accent2); color: white; }
-  .task-body { flex: 1; min-width: 0; }
-  .task-text { font-size: 0.82rem; line-height: 1.4; }
-  .task-meta { display: flex; align-items: center; gap: 0.45rem; margin-top: 0.28rem; flex-wrap: wrap; }
-  .task-category {
-    font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase;
-    padding: 0.16rem 0.42rem; border-radius: 3px;
-    background: var(--surface2); color: var(--muted); border: 1px solid var(--border);
-  }
-  .task-due { font-size: 0.62rem; color: var(--muted); letter-spacing: 0.04em; }
-  .task-due.overdue { color: var(--t1); }
-  .task-due.today { color: var(--t3); }
-  .task-note-preview {
-    font-size: 0.65rem; color: var(--muted); font-style: italic;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 240px;
-  }
-  .task-actions { display: flex; align-items: center; gap: 0.25rem; flex-shrink: 0; }
-  .task-action-btn {
-    background: none; border: none; color: var(--muted); cursor: pointer;
-    font-size: 0.78rem; padding: 0.22rem 0.38rem; border-radius: 3px;
-    transition: color 0.15s, background 0.15s; line-height: 1;
-  }
-  .task-action-btn:hover { color: var(--accent); background: var(--surface2); }
-  .task-action-btn.delete:hover { color: var(--t1); background: var(--t1-bg); }
-  .task-notes-area {
-    border-top: 1px solid var(--border);
-    padding: 0.6rem 0.9rem 0.7rem 2.55rem;
-    font-size: 0.74rem; color: var(--muted); line-height: 1.65;
-    white-space: pre-wrap; background: var(--surface2);
-  }
-  .empty-state { font-size: 0.72rem; color: var(--muted); padding: 0.65rem 0; font-style: italic; }
+.menu-panel-title {
+font-family: var(–font-display); font-size: 1.1rem;
+color: var(–accent); margin-bottom: 0.75rem;
+}
 
-  /* STATS */
-  .stats-bar {
-    max-width: 900px; margin: 2rem auto 0; padding-top: 1rem;
-    border-top: 1px solid var(--border);
-    display: flex; gap: 1.5rem; font-size: 0.68rem; color: var(--muted); flex-wrap: wrap;
-  }
-  .stat span { color: var(--accent); font-weight: 500; }
+.menu-item {
+background: none; border: 1px solid var(–border); color: var(–muted);
+font-family: var(–font-mono); font-size: 0.75rem; letter-spacing: 0.06em;
+padding: 0.7rem 1rem; border-radius: 4px; cursor: pointer;
+text-align: left; transition: all 0.15s; width: 100%;
+display: flex; align-items: center; gap: 0.75rem;
+}
+.menu-item:hover { border-color: var(–accent); color: var(–accent); }
+.menu-item.active { background: var(–accent); border-color: var(–accent); color: #0e0e0f; }
+.menu-item-icon { font-size: 1rem; flex-shrink: 0; }
 
-  /* RESET CONFIRM */
-  .confirm-backdrop {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.76);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.15s;
-  }
-  .confirm-backdrop.open { opacity: 1; pointer-events: all; }
-  .confirm-box {
-    background: var(--surface); border: 1px solid var(--t1);
-    border-radius: 8px; padding: 1.5rem; width: min(380px, 90vw);
-    transform: scale(0.96); transition: transform 0.15s;
-  }
-  .confirm-backdrop.open .confirm-box { transform: scale(1); }
-  .confirm-box h3 { font-family: 'DM Serif Display', 'Georgia', serif; font-size: 1.1rem; color: var(--t1); margin-bottom: 0.6rem; }
-  .confirm-box p { font-size: 0.74rem; color: var(--muted); line-height: 1.55; margin-bottom: 1.1rem; }
-  .confirm-box label { display: flex; align-items: center; gap: 0.5rem; font-size: 0.73rem; color: var(--text); margin-bottom: 1rem; cursor: pointer; }
-  .confirm-box label input { accent-color: var(--accent); }
-  .confirm-actions { display: flex; gap: 0.6rem; justify-content: flex-end; }
-  .btn-danger {
-    background: var(--t1); color: white; border: none;
-    font-family: 'DM Mono', 'Menlo', 'Monaco', 'Courier New', monospace; font-size: 0.75rem;
-    padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; transition: opacity 0.15s;
-  }
-  .btn-danger:hover { opacity: 0.85; }
+/* ── VIEW SWITCHER ── */
+.view { display: none; }
+.view.active { display: block; }
 
-  /* LOADING */
-  .loading-overlay {
-    position: fixed; inset: 0; background: var(--bg);
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    z-index: 300; transition: opacity 0.4s;
-  }
-  .loading-overlay.hidden { opacity: 0; pointer-events: none; }
-  .loading-title { font-family: 'DM Serif Display', 'Georgia', serif; font-size: 2rem; color: var(--accent); margin-bottom: 1rem; }
-  .loading-dots { display: flex; gap: 0.5rem; }
-  .loading-dots span {
-    width: 8px; height: 8px; border-radius: 50%; background: var(--muted);
-    animation: dotPulse 1.2s infinite;
-  }
-  .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
-  .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
-  @keyframes dotPulse { 0%,80%,100%{opacity:0.2} 40%{opacity:1} }
+/* ── TOOLBAR ── */
+.toolbar {
+max-width: 900px; margin: 0 auto 1rem;
+display: flex; gap: 0.65rem; flex-wrap: wrap; align-items: center;
+}
+.toolbar input[type=“text”] {
+flex: 1; min-width: 160px; background: var(–surface); border: 1px solid var(–border);
+color: var(–text); font-family: var(–font-mono); font-size: 0.75rem;
+padding: 0.5rem 0.75rem; border-radius: 4px; outline: none; transition: border-color 0.2s;
+}
+.toolbar input[type=“text”]:focus { border-color: var(–accent); }
+.toolbar select {
+background: var(–surface); border: 1px solid var(–border);
+color: var(–text); font-family: var(–font-mono); font-size: 0.75rem;
+padding: 0.5rem 0.6rem; border-radius: 4px; outline: none; transition: border-color 0.2s;
+}
+.toolbar select:focus { border-color: var(–accent); }
+.toolbar .add-btn {
+background: var(–accent); color: #0e0e0f; border: none;
+font-family: var(–font-mono); font-size: 0.75rem; font-weight: 500;
+padding: 0.5rem 1.2rem; border-radius: 4px; cursor: pointer;
+letter-spacing: 0.05em; transition: opacity 0.15s; white-space: nowrap;
+}
+.toolbar .add-btn:hover { opacity: 0.85; }
 
-  @media (max-width: 540px) {
-    .toolbar { flex-direction: column; }
-    .toolbar input[type="text"] { width: 100%; }
-    .task-note-preview { display: none; }
-  }
+/* ── CAT MANAGER ── */
+.cat-manager {
+max-width: 900px; margin: 0 auto 1.25rem;
+display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;
+}
+.cat-manager input {
+background: var(–surface); border: 1px solid var(–border);
+color: var(–text); font-family: var(–font-mono); font-size: 0.75rem;
+padding: 0.4rem 0.75rem; border-radius: 4px; outline: none; width: 155px; transition: border-color 0.2s;
+}
+.cat-manager input:focus { border-color: var(–accent); }
+.cat-manager .cat-add-btn {
+background: none; border: 1px solid var(–accent); color: var(–accent);
+font-family: var(–font-mono); font-size: 0.7rem; padding: 0.4rem 0.85rem;
+border-radius: 4px; cursor: pointer; letter-spacing: 0.05em; transition: all 0.15s; white-space: nowrap;
+}
+.cat-manager .cat-add-btn:hover { background: var(–accent); color: #0e0e0f; }
+.cat-manager-label { font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(–muted); }
+.custom-cat-tag {
+display: inline-flex; align-items: center; gap: 0.35rem;
+font-size: 0.63rem; letter-spacing: 0.08em; text-transform: uppercase;
+padding: 0.22rem 0.5rem; border-radius: 3px;
+background: var(–surface2); border: 1px solid var(–border); color: var(–muted);
+}
+.custom-cat-tag button {
+background: none; border: none; color: var(–muted);
+cursor: pointer; font-size: 0.7rem; padding: 0; line-height: 1; transition: color 0.15s;
+}
+.custom-cat-tag button:hover { color: var(–t1); }
+
+/* ── FILTER BAR ── */
+.filter-bar {
+max-width: 900px; margin: 0 auto 1.5rem;
+display: flex; gap: 0.45rem; flex-wrap: wrap;
+}
+.filter-btn {
+background: none; border: 1px solid var(–border); color: var(–muted);
+font-family: var(–font-mono); font-size: 0.68rem;
+padding: 0.28rem 0.72rem; border-radius: 20px; cursor: pointer;
+transition: all 0.15s; letter-spacing: 0.05em;
+}
+.filter-btn:hover { border-color: var(–accent); color: var(–accent); }
+.filter-btn.active { background: var(–accent); border-color: var(–accent); color: #0e0e0f; }
+
+/* ── BOARD ── */
+.board { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.5rem; }
+.tier-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.65rem; }
+.tier-label {
+font-size: 0.62rem; letter-spacing: 0.15em; text-transform: uppercase;
+font-weight: 500; padding: 0.22rem 0.55rem; border-radius: 3px;
+}
+.tier-1 .tier-label { background: var(–t1-bg); color: var(–t1); border: 1px solid var(–t1); }
+.tier-2 .tier-label { background: var(–t2-bg); color: var(–t2); border: 1px solid var(–t2); }
+.tier-3 .tier-label { background: var(–t3-bg); color: var(–t3); border: 1px solid var(–t3); }
+.tier-4 .tier-label { background: var(–t4-bg); color: var(–t4); border: 1px solid var(–t4); }
+.tier-name { font-family: var(–font-display); font-size: 1.05rem; font-weight: 400; }
+.tier-count { font-size: 0.68rem; color: var(–muted); margin-left: auto; }
+.tier-divider { height: 1px; background: var(–border); flex: 1; }
+.tasks-list { display: flex; flex-direction: column; gap: 0.45rem; }
+
+/* ── TASK CARD ── */
+.task-card {
+background: var(–surface); border: 1px solid var(–border);
+border-radius: 6px; overflow: hidden;
+transition: border-color 0.15s, opacity 0.3s; animation: slideIn 0.2s ease;
+}
+@keyframes slideIn { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+.task-card.done { opacity: 0.42; }
+.task-card.done .task-text { text-decoration: line-through; color: var(–muted); }
+.task-card:hover { border-color: #3a3a40; }
+.task-card.overdue { border-color: var(–t1) !important; }
+.task-card.due-today { border-color: var(–t3) !important; }
+.task-main { padding: 0.72rem 0.9rem; display: flex; align-items: center; gap: 0.75rem; }
+.task-check {
+width: 17px; height: 17px; border-radius: 50%; border: 1.5px solid var(–border);
+background: none; cursor: pointer; flex-shrink: 0;
+display: flex; align-items: center; justify-content: center;
+transition: all 0.15s; font-size: 9px; color: transparent;
+}
+.task-check:hover { border-color: var(–accent2); }
+.task-card.done .task-check { background: var(–accent2); border-color: var(–accent2); color: white; }
+.task-body { flex: 1; min-width: 0; }
+.task-text { font-size: 0.82rem; line-height: 1.4; }
+.task-meta { display: flex; align-items: center; gap: 0.45rem; margin-top: 0.28rem; flex-wrap: wrap; }
+.task-category {
+font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase;
+padding: 0.16rem 0.42rem; border-radius: 3px;
+background: var(–surface2); color: var(–muted); border: 1px solid var(–border);
+}
+.task-due { font-size: 0.62rem; color: var(–muted); letter-spacing: 0.04em; }
+.task-due.overdue { color: var(–t1); }
+.task-due.today { color: var(–t3); }
+.task-note-preview {
+font-size: 0.65rem; color: var(–muted); font-style: italic;
+white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 240px;
+}
+.task-actions { display: flex; align-items: center; gap: 0.25rem; flex-shrink: 0; }
+.task-action-btn {
+background: none; border: none; color: var(–muted); cursor: pointer;
+font-size: 0.78rem; padding: 0.22rem 0.38rem; border-radius: 3px;
+transition: color 0.15s, background 0.15s; line-height: 1;
+}
+.task-action-btn:hover { color: var(–accent); background: var(–surface2); }
+.task-action-btn.delete:hover { color: var(–t1); background: var(–t1-bg); }
+.task-notes-area {
+border-top: 1px solid var(–border);
+padding: 0.6rem 0.9rem 0.7rem 2.55rem;
+font-size: 0.74rem; color: var(–muted); line-height: 1.65;
+white-space: pre-wrap; background: var(–surface2);
+}
+.empty-state { font-size: 0.72rem; color: var(–muted); padding: 0.65rem 0; font-style: italic; }
+
+/* ── STATS ── */
+.stats-bar {
+max-width: 900px; margin: 2rem auto 0; padding-top: 1rem;
+border-top: 1px solid var(–border);
+display: flex; gap: 1.5rem; font-size: 0.68rem; color: var(–muted); flex-wrap: wrap;
+}
+.stat span { color: var(–accent); font-weight: 500; }
+
+/* ── CALENDAR VIEW ── */
+.calendar-wrap { max-width: 900px; margin: 0 auto; }
+
+.cal-nav {
+display: flex; align-items: center; justify-content: space-between;
+margin-bottom: 1.5rem;
+}
+.cal-nav-btn {
+background: none; border: 1px solid var(–border); color: var(–muted);
+font-family: var(–font-mono); font-size: 0.8rem;
+width: 36px; height: 36px; border-radius: 4px; cursor: pointer;
+display: flex; align-items: center; justify-content: center;
+transition: all 0.15s;
+}
+.cal-nav-btn:hover { border-color: var(–accent); color: var(–accent); }
+.cal-month-label {
+font-family: var(–font-display); font-size: 1.4rem;
+color: var(–accent); font-weight: 400;
+}
+
+.cal-grid {
+display: grid;
+grid-template-columns: repeat(7, 1fr);
+gap: 3px;
+}
+
+.cal-dow {
+font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase;
+color: var(–muted); text-align: center; padding: 0.4rem 0;
+}
+
+.cal-day {
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: 5px;
+min-height: 72px;
+padding: 0.4rem;
+cursor: pointer;
+transition: border-color 0.15s;
+position: relative;
+display: flex; flex-direction: column; gap: 3px;
+}
+.cal-day:hover { border-color: #3a3a40; }
+.cal-day.empty { background: transparent; border-color: transparent; cursor: default; }
+.cal-day.today { border-color: var(–accent) !important; }
+.cal-day.has-tasks { cursor: pointer; }
+.cal-day.has-tasks:hover { border-color: var(–accent); }
+
+.cal-day-num {
+font-size: 0.7rem; color: var(–muted); font-weight: 500;
+line-height: 1;
+}
+.cal-day.today .cal-day-num {
+background: var(–accent); color: #0e0e0f;
+width: 20px; height: 20px; border-radius: 50%;
+display: flex; align-items: center; justify-content: center;
+font-size: 0.65rem;
+}
+
+.cal-task-dot {
+font-size: 0.6rem; line-height: 1.3;
+white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+padding: 1px 4px; border-radius: 3px;
+max-width: 100%;
+}
+.cal-task-dot.t1 { background: var(–t1-bg); color: var(–t1); }
+.cal-task-dot.t2 { background: var(–t2-bg); color: var(–t2); }
+.cal-task-dot.t3 { background: var(–t3-bg); color: var(–t3); }
+.cal-task-dot.t4 { background: var(–t4-bg); color: var(–t4); }
+.cal-task-dot.done { opacity: 0.35; }
+
+.cal-more {
+font-size: 0.58rem; color: var(–muted); padding: 1px 4px;
+}
+
+/* ── DAY POPUP ── */
+.day-popup-backdrop {
+position: fixed; inset: 0; background: rgba(0,0,0,0.65);
+display: flex; align-items: center; justify-content: center;
+z-index: 120; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+}
+.day-popup-backdrop.open { opacity: 1; pointer-events: all; }
+
+.day-popup {
+background: var(–surface); border: 1px solid var(–border);
+border-radius: 8px; padding: 1.4rem;
+width: min(400px, 92vw); max-height: 80vh; overflow-y: auto;
+transform: scale(0.95); transition: transform 0.2s;
+}
+.day-popup-backdrop.open .day-popup { transform: scale(1); }
+
+.day-popup-header {
+display: flex; align-items: center; justify-content: space-between;
+margin-bottom: 1rem;
+}
+.day-popup-title {
+font-family: var(–font-display); font-size: 1.15rem;
+color: var(–accent); font-weight: 400;
+}
+.day-popup-close {
+background: none; border: none; color: var(–muted);
+font-size: 1rem; cursor: pointer; padding: 0.2rem 0.4rem;
+border-radius: 3px; transition: color 0.15s;
+}
+.day-popup-close:hover { color: var(–text); }
+
+.day-popup-task {
+display: flex; align-items: flex-start; gap: 0.65rem;
+padding: 0.65rem 0; border-bottom: 1px solid var(–border);
+}
+.day-popup-task:last-child { border-bottom: none; }
+.day-popup-task.done { opacity: 0.38; }
+.day-popup-task.done .dpt-text { text-decoration: line-through; }
+
+.dpt-tier {
+font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase;
+padding: 0.18rem 0.4rem; border-radius: 3px; flex-shrink: 0; margin-top: 1px;
+}
+.dpt-tier.t1 { background: var(–t1-bg); color: var(–t1); border: 1px solid var(–t1); }
+.dpt-tier.t2 { background: var(–t2-bg); color: var(–t2); border: 1px solid var(–t2); }
+.dpt-tier.t3 { background: var(–t3-bg); color: var(–t3); border: 1px solid var(–t3); }
+.dpt-tier.t4 { background: var(–t4-bg); color: var(–t4); border: 1px solid var(–t4); }
+
+.dpt-body { flex: 1; min-width: 0; }
+.dpt-text { font-size: 0.82rem; line-height: 1.4; }
+.dpt-cat { font-size: 0.62rem; color: var(–muted); margin-top: 0.2rem; letter-spacing: 0.05em; }
+
+.day-popup-empty { font-size: 0.75rem; color: var(–muted); font-style: italic; padding: 0.5rem 0; }
+
+/* ── MODALS ── */
+.modal-backdrop {
+position: fixed; inset: 0; background: rgba(0,0,0,0.72);
+display: flex; align-items: center; justify-content: center;
+z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+}
+.modal-backdrop.open { opacity: 1; pointer-events: all; }
+.modal {
+background: var(–surface); border: 1px solid var(–border);
+border-radius: 8px; padding: 1.5rem; width: min(440px, 92vw);
+transform: translateY(10px); transition: transform 0.2s;
+}
+.modal-backdrop.open .modal { transform: translateY(0); }
+.modal h2 {
+font-family: var(–font-display); font-size: 1.3rem;
+font-weight: 400; color: var(–accent); margin-bottom: 0.35rem;
+}
+.modal p { font-size: 0.73rem; color: var(–muted); margin-bottom: 1.2rem; line-height: 1.5; }
+.modal-fields { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.2rem; }
+.modal-fields input[type=“text”],
+.modal-fields input[type=“date”],
+.modal-fields select,
+.modal-fields textarea {
+width: 100%; background: var(–surface2); border: 1px solid var(–border);
+color: var(–text); font-family: var(–font-mono); font-size: 0.78rem;
+padding: 0.55rem 0.75rem; border-radius: 4px; outline: none;
+transition: border-color 0.2s; resize: vertical;
+}
+.modal-fields input:focus, .modal-fields select:focus, .modal-fields textarea:focus { border-color: var(–accent); }
+.modal-fields textarea { min-height: 72px; }
+.modal-fields input[type=“date”]::-webkit-calendar-picker-indicator { filter: invert(0.5); cursor: pointer; }
+.modal-row { display: flex; gap: 0.6rem; }
+.modal-row > * { flex: 1; }
+.field-label { font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(–muted); margin-bottom: 0.28rem; }
+.modal-actions { display: flex; gap: 0.6rem; justify-content: flex-end; }
+
+.btn-primary {
+background: var(–accent); color: #0e0e0f; border: none;
+font-family: var(–font-mono); font-size: 0.75rem; font-weight: 500;
+padding: 0.5rem 1.2rem; border-radius: 4px; cursor: pointer; transition: opacity 0.15s;
+}
+.btn-primary:hover { opacity: 0.85; }
+.btn-ghost {
+background: none; border: 1px solid var(–border); color: var(–muted);
+font-family: var(–font-mono); font-size: 0.75rem;
+padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; transition: all 0.15s;
+}
+.btn-ghost:hover { border-color: var(–muted); color: var(–text); }
+
+/* ── RESET CONFIRM ── */
+.confirm-backdrop {
+position: fixed; inset: 0; background: rgba(0,0,0,0.76);
+display: flex; align-items: center; justify-content: center;
+z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.15s;
+}
+.confirm-backdrop.open { opacity: 1; pointer-events: all; }
+.confirm-box {
+background: var(–surface); border: 1px solid var(–t1);
+border-radius: 8px; padding: 1.5rem; width: min(380px, 90vw);
+transform: scale(0.96); transition: transform 0.15s;
+}
+.confirm-backdrop.open .confirm-box { transform: scale(1); }
+.confirm-box h3 { font-family: var(–font-display); font-size: 1.1rem; color: var(–t1); margin-bottom: 0.6rem; }
+.confirm-box p { font-size: 0.74rem; color: var(–muted); line-height: 1.55; margin-bottom: 1.1rem; }
+.confirm-box label { display: flex; align-items: center; gap: 0.5rem; font-size: 0.73rem; color: var(–text); margin-bottom: 1rem; cursor: pointer; }
+.confirm-box label input { accent-color: var(–accent); }
+.confirm-actions { display: flex; gap: 0.6rem; justify-content: flex-end; }
+.btn-danger {
+background: var(–t1); color: white; border: none;
+font-family: var(–font-mono); font-size: 0.75rem;
+padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; transition: opacity 0.15s;
+}
+.btn-danger:hover { opacity: 0.85; }
+
+/* ── LOADING ── */
+.loading-overlay {
+position: fixed; inset: 0; background: var(–bg);
+display: flex; flex-direction: column; align-items: center; justify-content: center;
+z-index: 300; transition: opacity 0.4s;
+}
+.loading-overlay.hidden { opacity: 0; pointer-events: none; }
+.loading-title { font-family: var(–font-display); font-size: 2rem; color: var(–accent); margin-bottom: 1rem; }
+.loading-dots { display: flex; gap: 0.5rem; }
+.loading-dots span {
+width: 8px; height: 8px; border-radius: 50%; background: var(–muted);
+animation: dotPulse 1.2s infinite;
+}
+.loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+.loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes dotPulse { 0%,80%,100%{opacity:0.2} 40%{opacity:1} }
+
+@media (max-width: 540px) {
+.toolbar { flex-direction: column; }
+.toolbar input[type=“text”] { width: 100%; }
+.task-note-preview { display: none; }
+.cal-day { min-height: 56px; }
+.cal-task-dot { display: none; }
+.cal-day.has-tasks::after {
+content: ‘’; display: block; width: 5px; height: 5px;
+border-radius: 50%; background: var(–accent); margin: 2px auto 0;
+}
+}
 </style>
 
 </head>
@@ -343,6 +541,20 @@
 <div class="loading-overlay" id="loadingOverlay">
   <div class="loading-title">Execution Plan</div>
   <div class="loading-dots"><span></span><span></span><span></span></div>
+</div>
+
+<!-- MENU PANEL -->
+
+<div class="menu-panel-backdrop" id="menuBackdrop" onclick="closeMenu()">
+  <div class="menu-panel" onclick="event.stopPropagation()">
+    <div class="menu-panel-title">Navigation</div>
+    <button class="menu-item active" id="menuTasksBtn" onclick="switchView('tasks')">
+      <span class="menu-item-icon">☰</span> Task Board
+    </button>
+    <button class="menu-item" id="menuCalBtn" onclick="switchView('calendar')">
+      <span class="menu-item-icon">📅</span> Calendar View
+    </button>
+  </div>
 </div>
 
 <!-- ADD/EDIT MODAL -->
@@ -404,6 +616,18 @@
   </div>
 </div>
 
+<!-- DAY POPUP -->
+
+<div class="day-popup-backdrop" id="dayPopup" onclick="closeDayPopup()">
+  <div class="day-popup" onclick="event.stopPropagation()">
+    <div class="day-popup-header">
+      <div class="day-popup-title" id="dayPopupTitle"></div>
+      <button class="day-popup-close" onclick="closeDayPopup()">✕</button>
+    </div>
+    <div id="dayPopupContent"></div>
+  </div>
+</div>
+
 <!-- CONFIG BANNER -->
 
 <div class="config-banner" id="configBanner" style="display:none">
@@ -423,34 +647,53 @@
     <h1>Execution Plan</h1>
     <div class="date-line" id="todayLabel"></div>
   </div>
-  <button class="reset-btn" onclick="openReset()">↺ Daily Reset</button>
+  <div class="header-actions">
+    <button class="reset-btn" onclick="openReset()">↺ Daily Reset</button>
+    <button class="menu-btn" id="menuBtn" onclick="toggleMenu()" title="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
 </header>
 
-<div class="toolbar">
-  <input type="text" id="quickTaskInput" placeholder="Quick-add a task, press Enter…" />
-  <select id="quickCategory"></select>
-  <select id="quickTier">
-    <option value="1">T1 — Critical</option>
-    <option value="2">T2 — High Priority</option>
-    <option value="3" selected>T3 — Medium</option>
-    <option value="4">T4 — Low / Someday</option>
-  </select>
-  <button class="add-btn" onclick="openAddModal()">+ Full Add</button>
+<!-- TASK BOARD VIEW -->
+
+<div class="view active" id="viewTasks">
+  <div class="toolbar">
+    <input type="text" id="quickTaskInput" placeholder="Quick-add a task, press Enter…" />
+    <select id="quickCategory"></select>
+    <select id="quickTier">
+      <option value="1">T1 — Critical</option>
+      <option value="2">T2 — High Priority</option>
+      <option value="3" selected>T3 — Medium</option>
+      <option value="4">T4 — Low / Someday</option>
+    </select>
+    <button class="add-btn" onclick="openAddModal()">+ Full Add</button>
+  </div>
+  <div class="cat-manager">
+    <span class="cat-manager-label">New category:</span>
+    <input type="text" id="newCatInput" placeholder="e.g. Side Project" maxlength="24" />
+    <button class="cat-add-btn" onclick="addCategory()">+ Add</button>
+    <div id="customCatTags"></div>
+  </div>
+  <div class="filter-bar" id="filterBar"></div>
+  <div class="board" id="board"></div>
+  <div class="stats-bar" id="statsBar"></div>
 </div>
 
-<div class="cat-manager">
-  <span class="cat-manager-label">New category:</span>
-  <input type="text" id="newCatInput" placeholder="e.g. Side Project" maxlength="24" />
-  <button class="cat-add-btn" onclick="addCategory()">+ Add</button>
-  <div id="customCatTags"></div>
-</div>
+<!-- CALENDAR VIEW -->
 
-<div class="filter-bar" id="filterBar"></div>
-<div class="board" id="board"></div>
-<div class="stats-bar" id="statsBar"></div>
+<div class="view" id="viewCalendar">
+  <div class="calendar-wrap">
+    <div class="cal-nav">
+      <button class="cal-nav-btn" onclick="calPrev()">‹</button>
+      <div class="cal-month-label" id="calMonthLabel"></div>
+      <button class="cal-nav-btn" onclick="calNext()">›</button>
+    </div>
+    <div class="cal-grid" id="calGrid"></div>
+  </div>
+</div>
 
 <script>
-// ── PASTE YOUR SCRIPT URL HERE AFTER SETUP ──
 const HARDCODED_URL = '';
 
 const TIERS = [
@@ -460,6 +703,9 @@ const TIERS = [
   { id: 4, label: 'T4', name: 'Low / Someday', css: 'tier-4' },
 ];
 const DEFAULT_CATS = ['Work','Personal','Finance','Health','Admin','Family','Learning','Other'];
+const TIER_COLORS = { 1: 't1', 2: 't2', 3: 't3', 4: 't4' };
+const DOW = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
 let tasks = [];
 let customCats = [];
@@ -468,7 +714,10 @@ let editingId = null;
 let expandedNotes = new Set();
 let syncTimer = null;
 let SCRIPT_URL = HARDCODED_URL || localStorage.getItem('ep_script_url') || '';
+let calYear, calMonth;
+let currentView = 'tasks';
 
+/* ── DATE ── */
 function todayStr() { return new Date().toISOString().slice(0,10); }
 
 function formatDue(d) {
@@ -493,8 +742,12 @@ function dueClass(d) {
   return '';
 }
 
+const now = new Date();
+calYear = now.getFullYear();
+calMonth = now.getMonth();
+
 document.getElementById('todayLabel').textContent =
-  new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'}).toUpperCase();
+  now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'}).toUpperCase();
 
 /* ── SYNC STATUS ── */
 function setSyncStatus(state, label) {
@@ -502,7 +755,7 @@ function setSyncStatus(state, label) {
   document.getElementById('syncLabel').textContent = label;
 }
 
-/* ── URL SETUP ── */
+/* ── SCRIPT URL ── */
 function saveScriptUrl() {
   const val = document.getElementById('scriptUrlInput').value.trim();
   if (!val.startsWith('https://script.google.com')) {
@@ -520,7 +773,6 @@ async function sheetsGet(action) {
   const res = await fetch(`${SCRIPT_URL}?action=${action}&t=${Date.now()}`);
   return res.json();
 }
-
 async function sheetsPost(action, data) {
   const res = await fetch(`${SCRIPT_URL}?action=${action}&data=${encodeURIComponent(JSON.stringify(data))}`);
   return res.json();
@@ -530,9 +782,7 @@ async function loadFromSheets() {
   if (!SCRIPT_URL) {
     document.getElementById('configBanner').style.display = 'block';
     setSyncStatus('error', 'Not connected — paste your script URL above');
-    hideLoading();
-    renderCategoryUI();
-    render();
+    hideLoading(); renderCategoryUI(); render(); renderCalendar();
     return;
   }
   setSyncStatus('syncing', 'Loading from Google Sheets…');
@@ -543,16 +793,11 @@ async function loadFromSheets() {
     setSyncStatus('synced', 'Synced · ' + new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}));
   } catch(e) {
     setSyncStatus('error', 'Could not connect — check your URL');
-    console.error(e);
   }
-  hideLoading();
-  renderCategoryUI();
-  render();
+  hideLoading(); renderCategoryUI(); render(); renderCalendar();
 }
 
-function hideLoading() {
-  document.getElementById('loadingOverlay').classList.add('hidden');
-}
+function hideLoading() { document.getElementById('loadingOverlay').classList.add('hidden'); }
 
 function scheduleSave() {
   clearTimeout(syncTimer);
@@ -567,8 +812,31 @@ async function pushToSheets() {
     setSyncStatus('synced', 'Saved · ' + new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}));
   } catch(e) {
     setSyncStatus('error', 'Save failed — check your connection');
-    console.error(e);
   }
+}
+
+/* ── VIEW SWITCHING ── */
+function toggleMenu() {
+  const backdrop = document.getElementById('menuBackdrop');
+  const btn = document.getElementById('menuBtn');
+  const isOpen = backdrop.classList.contains('open');
+  if (isOpen) closeMenu();
+  else { backdrop.classList.add('open'); btn.classList.add('active'); }
+}
+
+function closeMenu() {
+  document.getElementById('menuBackdrop').classList.remove('open');
+  document.getElementById('menuBtn').classList.remove('active');
+}
+
+function switchView(view) {
+  currentView = view;
+  document.getElementById('viewTasks').classList.toggle('active', view === 'tasks');
+  document.getElementById('viewCalendar').classList.toggle('active', view === 'calendar');
+  document.getElementById('menuTasksBtn').classList.toggle('active', view === 'tasks');
+  document.getElementById('menuCalBtn').classList.toggle('active', view === 'calendar');
+  if (view === 'calendar') renderCalendar();
+  closeMenu();
 }
 
 /* ── CATEGORIES ── */
@@ -660,7 +928,7 @@ function saveModal() {
     tasks.push({ id: Date.now(), done: false, ...data });
     document.getElementById('quickTaskInput').value = '';
   }
-  closeModal(); render(); scheduleSave();
+  closeModal(); render(); renderCalendar(); scheduleSave();
 }
 
 /* ── QUICK ADD ── */
@@ -674,18 +942,18 @@ function quickAdd() {
     done: false, due: '', notes: '',
   });
   document.getElementById('quickTaskInput').value = '';
-  render(); scheduleSave();
+  render(); renderCalendar(); scheduleSave();
 }
 
 /* ── TASK ACTIONS ── */
 function toggleDone(id) {
   const t = tasks.find(t => t.id === id);
-  if (t) { t.done = !t.done; render(); scheduleSave(); }
+  if (t) { t.done = !t.done; render(); renderCalendar(); scheduleSave(); }
 }
 function deleteTask(id) {
   tasks = tasks.filter(t => t.id !== id);
   expandedNotes.delete(id);
-  render(); scheduleSave();
+  render(); renderCalendar(); scheduleSave();
 }
 function toggleNotes(id) {
   expandedNotes.has(id) ? expandedNotes.delete(id) : expandedNotes.add(id);
@@ -702,10 +970,10 @@ function doReset() {
   tasks = tasks.filter(t => !t.done);
   if (!document.getElementById('resetKeepNotes').checked) tasks.forEach(t => { t.notes=''; });
   expandedNotes.clear();
-  closeReset(); render(); scheduleSave();
+  closeReset(); render(); renderCalendar(); scheduleSave();
 }
 
-/* ── RENDER ── */
+/* ── RENDER TASK BOARD ── */
 function render() {
   const board = document.getElementById('board');
   board.innerHTML = '';
@@ -727,7 +995,6 @@ function render() {
 
     const list = document.createElement('div');
     list.className = 'tasks-list';
-
     if (tierTasks.length === 0) {
       list.innerHTML = `<div class="empty-state">No tasks here — add one above.</div>`;
     } else {
@@ -777,6 +1044,128 @@ function render() {
     ${overdue?`<div class="stat">Overdue: <span style="color:var(--t1)">${overdue}</span></div>`:''}`;
 }
 
+/* ── CALENDAR ── */
+function calPrev() {
+  calMonth--;
+  if (calMonth < 0) { calMonth = 11; calYear--; }
+  renderCalendar();
+}
+function calNext() {
+  calMonth++;
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  renderCalendar();
+}
+
+function renderCalendar() {
+  document.getElementById('calMonthLabel').textContent = `${MONTHS[calMonth]} ${calYear}`;
+
+  const grid = document.getElementById('calGrid');
+  grid.innerHTML = '';
+
+  // Day of week headers
+  DOW.forEach(d => {
+    const el = document.createElement('div');
+    el.className = 'cal-dow';
+    el.textContent = d;
+    grid.appendChild(el);
+  });
+
+  const firstDay = new Date(calYear, calMonth, 1).getDay();
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  const today = todayStr();
+
+  // Build a map of date -> tasks
+  const taskMap = {};
+  tasks.forEach(t => {
+    if (!t.due) return;
+    const d = t.due;
+    const [y, m] = d.split('-').map(Number);
+    if (y === calYear && (m - 1) === calMonth) {
+      if (!taskMap[d]) taskMap[d] = [];
+      taskMap[d].push(t);
+    }
+  });
+
+  // Empty cells before first day
+  for (let i = 0; i < firstDay; i++) {
+    const el = document.createElement('div');
+    el.className = 'cal-day empty';
+    grid.appendChild(el);
+  }
+
+  // Day cells
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    const dayTasks = taskMap[dateStr] || [];
+    const isToday = dateStr === today;
+    const hasTasks = dayTasks.length > 0;
+
+    const cell = document.createElement('div');
+    cell.className = 'cal-day' + (isToday ? ' today' : '') + (hasTasks ? ' has-tasks' : '');
+
+    const numEl = document.createElement('div');
+    numEl.className = 'cal-day-num';
+    numEl.textContent = day;
+    cell.appendChild(numEl);
+
+    if (hasTasks) {
+      // Sort: incomplete first, then done
+      const sorted = [...dayTasks].sort((a,b) => a.done - b.done);
+      const MAX_SHOW = 3;
+      sorted.slice(0, MAX_SHOW).forEach(task => {
+        const dot = document.createElement('div');
+        dot.className = `cal-task-dot t${task.tier}${task.done ? ' done' : ''}`;
+        dot.textContent = task.text;
+        cell.appendChild(dot);
+      });
+      if (sorted.length > MAX_SHOW) {
+        const more = document.createElement('div');
+        more.className = 'cal-more';
+        more.textContent = `+${sorted.length - MAX_SHOW} more`;
+        cell.appendChild(more);
+      }
+      cell.addEventListener('click', () => openDayPopup(dateStr, dayTasks));
+    }
+
+    grid.appendChild(cell);
+  }
+}
+
+/* ── DAY POPUP ── */
+function openDayPopup(dateStr, dayTasks) {
+  const d = new Date(dateStr + 'T00:00:00');
+  const label = d.toLocaleDateString('en-US',{weekday:'long', month:'long', day:'numeric'});
+  document.getElementById('dayPopupTitle').textContent = label;
+
+  const content = document.getElementById('dayPopupContent');
+  content.innerHTML = '';
+
+  if (dayTasks.length === 0) {
+    content.innerHTML = `<div class="day-popup-empty">No tasks due this day.</div>`;
+  } else {
+    // Sort: incomplete first, then done
+    const sorted = [...dayTasks].sort((a,b) => a.done - b.done);
+    sorted.forEach(task => {
+      const row = document.createElement('div');
+      row.className = 'day-popup-task' + (task.done ? ' done' : '');
+      row.innerHTML = `
+        <div class="dpt-tier t${task.tier}">T${task.tier}</div>
+        <div class="dpt-body">
+          <div class="dpt-text">${esc(task.text)}</div>
+          <div class="dpt-cat">${task.category}${task.done ? ' · Completed' : ''}</div>
+        </div>`;
+      content.appendChild(row);
+    });
+  }
+
+  document.getElementById('dayPopup').classList.add('open');
+}
+
+function closeDayPopup() {
+  document.getElementById('dayPopup').classList.remove('open');
+}
+
+/* ── UTIL ── */
 function esc(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
@@ -787,6 +1176,7 @@ document.getElementById('newCatInput').addEventListener('keydown', e => { if(e.k
 document.getElementById('taskModal').addEventListener('click', e => { if(e.target===document.getElementById('taskModal')) closeModal(); });
 document.getElementById('modalText').addEventListener('keydown', e => { if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)) saveModal(); });
 
+/* ── INIT ── */
 renderCategoryUI();
 loadFromSheets();
 </script>
