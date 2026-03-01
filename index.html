@@ -141,22 +141,24 @@ white-space: nowrap; min-width: 0;
 .ep-select-btn .arrow { color: var(–muted); font-size: 0.6rem; flex-shrink: 0; }
 .ep-select-dropdown {
 position: fixed; z-index: 400;
-background: var(–surface2); border: 1px solid var(–border);
+background: #1c2333 !important;
+border: 1px solid #2a3349 !important;
 border-radius: 8px; overflow: hidden;
-box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+box-shadow: 0 12px 40px rgba(0,0,0,0.8) !important;
 min-width: 160px; max-height: 280px; overflow-y: auto;
 display: none;
 }
 .ep-select-dropdown.open { display: block; }
 .ep-select-option {
-padding: 0.65rem 1rem; font-size: 0.78rem; color: var(–text);
+padding: 0.75rem 1rem; font-size: 0.78rem;
+color: #e2e8f0 !important;
+background: #1c2333 !important;
 cursor: pointer; -webkit-tap-highlight-color: transparent;
-border-bottom: 1px solid var(–border);
-transition: background 0.1s;
+border-bottom: 1px solid #2a3349 !important;
 }
-.ep-select-option:last-child { border-bottom: none; }
-.ep-select-option:active { background: var(–surface); }
-.ep-select-option.selected { color: var(–accent); }
+.ep-select-option:last-child { border-bottom: none !important; }
+.ep-select-option:active { background: #161b27 !important; }
+.ep-select-option.selected { color: #6fb58a !important; background: #162a20 !important; }
 
 /* ── INPUTS ── */
 .ep-input {
@@ -444,8 +446,72 @@ z-index: 500; transition: opacity 0.35s;
 
 .view { display: none; }
 .view.active { display: block; }
-</style>
 
+/* ── GOALS VIEW ── */
+.goals-wrap { max-width: 900px; margin: 0 auto; }
+
+.goals-header-row {
+display: flex; align-items: center; justify-content: space-between;
+margin-bottom: 1.2rem;
+}
+.goals-title { font-family: Georgia, serif; font-size: 1.1rem; color: #6fb58a; }
+.goals-count { font-size: 0.65rem; color: #64748b; }
+
+.goal-card {
+background: #161b27 !important; border: 1px solid #2a3349;
+border-radius: 8px; padding: 1rem; margin-bottom: 0.65rem;
+animation: slideIn 0.18s ease;
+}
+.goal-card.status-done { opacity: 0.5; }
+.goal-card.status-done .goal-title-text { text-decoration: line-through; color: #64748b; }
+
+.goal-card-top { display: flex; align-items: flex-start; gap: 0.75rem; }
+.goal-status-badge {
+font-size: 0.55rem; letter-spacing: 0.1em; text-transform: uppercase;
+padding: 0.18rem 0.45rem; border-radius: 3px; flex-shrink: 0; margin-top: 2px;
+font-weight: 600; cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.goal-status-badge.not-started { background: #1c2333 !important; color: #64748b !important; border: 1px solid #2a3349; }
+.goal-status-badge.in-progress { background: #1a2535 !important; color: #6fb58a !important; border: 1px solid #6fb58a; }
+.goal-status-badge.done { background: #0d2018 !important; color: #4a9970 !important; border: 1px solid #4a9970; }
+
+.goal-body { flex: 1; min-width: 0; }
+.goal-title-text { font-size: 0.88rem; line-height: 1.4; color: #e2e8f0; }
+.goal-desc { font-size: 0.72rem; color: #64748b; margin-top: 0.25rem; line-height: 1.5; }
+.goal-meta { display: flex; align-items: center; gap: 0.6rem; margin-top: 0.5rem; flex-wrap: wrap; }
+.goal-due { font-size: 0.62rem; color: #64748b; }
+.goal-due.overdue { color: #e05c5c !important; }
+.goal-due.soon { color: #6fb58a !important; }
+
+.goal-actions { display: flex; gap: 0.3rem; flex-shrink: 0; }
+.goal-action-btn {
+background: none !important; border: none !important; color: #64748b !important;
+font-size: 0.78rem; padding: 0.22rem 0.35rem; border-radius: 4px;
+cursor: pointer; -webkit-appearance: none; -webkit-tap-highlight-color: transparent; line-height: 1;
+}
+.goal-action-btn:active { background: #1c2333 !important; color: #6fb58a !important; }
+.goal-action-btn.delete:active { color: #e05c5c !important; }
+
+.goal-link-task {
+margin-top: 0.65rem; padding-top: 0.65rem; border-top: 1px solid #2a3349;
+}
+.goal-link-label { font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase; color: #64748b; margin-bottom: 0.4rem; }
+.goal-linked-tasks { display: flex; flex-direction: column; gap: 0.3rem; }
+.goal-linked-task-item {
+font-size: 0.72rem; color: #e2e8f0; background: #1c2333 !important;
+border: 1px solid #2a3349; border-radius: 5px;
+padding: 0.4rem 0.65rem; display: flex; align-items: center; gap: 0.5rem;
+}
+.goal-linked-task-item.done-task { opacity: 0.45; text-decoration: line-through; color: #64748b; }
+.goal-linked-task-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.goal-linked-task-dot.t1 { background: #e05c5c; }
+.goal-linked-task-dot.t2 { background: #d4874a; }
+.goal-linked-task-dot.t3 { background: #6fb58a; }
+.goal-linked-task-dot.t4 { background: #4a9970; }
+
+.goals-empty { font-size: 0.72rem; color: #64748b; font-style: italic; padding: 1rem 0; text-align: center; }
+
+</style>
 </head>
 <body>
 
@@ -466,6 +532,9 @@ z-index: 500; transition: opacity 0.35s;
     </button>
     <button class="menu-item" id="menuCalBtn" onclick="switchView('calendar')">
       <span class="menu-item-icon">📅</span> Calendar View
+    </button>
+    <button class="menu-item" id="menuGoalsBtn" onclick="switchView('goals')">
+      <span class="menu-item-icon">🎯</span> Goals
     </button>
   </div>
 </div>
@@ -548,6 +617,46 @@ z-index: 500; transition: opacity 0.35s;
   </div>
 </div>
 
+<!-- GOAL MODAL -->
+
+<div class="overlay-backdrop" id="goalModal" onclick="handleGoalModalTap(event)">
+  <div class="overlay-panel">
+    <div class="overlay-title" id="goalModalTitle">Add Goal</div>
+    <div class="overlay-sub">Track something you're working toward.</div>
+    <div class="form-fields">
+      <div>
+        <div class="field-label">Goal Title</div>
+        <input class="ep-input" type="text" id="goalModalText" placeholder="What do you want to achieve?" />
+      </div>
+      <div>
+        <div class="field-label">Description (optional)</div>
+        <textarea class="ep-input" id="goalModalDesc" placeholder="Why this matters, context, notes…"></textarea>
+      </div>
+      <div>
+        <div class="field-label">Target Date (optional)</div>
+        <input class="ep-input" type="date" id="goalModalDue" style="-webkit-appearance:none;color-scheme:dark;" />
+      </div>
+    </div>
+    <div class="overlay-actions">
+      <button class="ep-btn" onclick="closeGoalModal()">Cancel</button>
+      <button class="ep-btn accent" onclick="saveGoalModal()">Save Goal</button>
+    </div>
+  </div>
+</div>
+
+<!-- GOAL LINK TASK PICKER -->
+
+<div class="overlay-backdrop" id="goalTaskPicker" onclick="closeGoalTaskPicker()">
+  <div class="overlay-panel" onclick="event.stopPropagation()">
+    <div class="overlay-title">Link a Task</div>
+    <div class="overlay-sub" id="goalTaskPickerSub">Select a task to link to this goal.</div>
+    <div id="goalTaskPickerList" style="max-height:320px;overflow-y:auto;margin-bottom:1rem"></div>
+    <div class="overlay-actions">
+      <button class="ep-btn" onclick="closeGoalTaskPicker()">Done</button>
+    </div>
+  </div>
+</div>
+
 <!-- CONFIG BANNER -->
 
 <div class="config-banner" id="configBanner" style="display:none">
@@ -622,6 +731,19 @@ z-index: 500; transition: opacity 0.35s;
     </div>
     <div class="cal-grid" id="calGrid"></div>
   </div>
+
+<!-- GOALS VIEW -->
+
+<div class="view" id="viewGoals">
+  <div class="goals-wrap">
+    <div class="goals-header-row">
+      <div class="goals-title">Goals</div>
+      <button class="ep-btn accent" onclick="openAddGoalModal()" style="font-size:0.72rem;padding:0.4rem 0.9rem">+ Add Goal</button>
+    </div>
+    <div id="goalsBoard"></div>
+  </div>
+</div>
+
 </div>
 
 <script>
@@ -643,8 +765,8 @@ const DEFAULT_CATS = ['Work','Personal','Finance','Health','Admin','Family','Lea
 const DOW = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
-let tasks = [], customCats = [], currentFilter = 'All';
-let editingId = null, expandedNotes = new Set(), syncTimer = null;
+let tasks = [], customCats = [], goals = [], currentFilter = 'All';
+let editingId = null, editingGoalId = null, linkingGoalId = null, expandedNotes = new Set(), syncTimer = null;
 let SCRIPT_URL = HARDCODED_URL || localStorage.getItem('ep_script_url') || '';
 let calYear, calMonth, currentView = 'tasks';
 
@@ -766,9 +888,10 @@ async function loadFromSheets() {
   }
   setSyncStatus('syncing', 'Loading from Google Sheets…');
   try {
-    const [taskRes, catRes] = await Promise.all([sheetsGet('getTasks'), sheetsGet('getCats')]);
+    const [taskRes, catRes, goalRes] = await Promise.all([sheetsGet('getTasks'), sheetsGet('getCats'), sheetsGet('getGoals')]);
     tasks = JSON.parse(taskRes.tasks || '[]');
     customCats = JSON.parse(catRes.cats || '[]');
+    goals = JSON.parse(goalRes.goals || '[]');
     setSyncStatus('synced', 'Synced · ' + new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}));
   } catch(e) { setSyncStatus('error', 'Could not connect — check your URL'); }
   hideLoading(); renderCategoryUI(); render(); renderCalendar();
@@ -781,7 +904,7 @@ function scheduleSave() {
 async function pushToSheets() {
   if (!SCRIPT_URL) return;
   try {
-    await Promise.all([sheetsPost('saveTasks', tasks), sheetsPost('saveCats', customCats)]);
+    await Promise.all([sheetsPost('saveTasks', tasks), sheetsPost('saveCats', customCats), sheetsPost('saveGoals', goals)]);
     setSyncStatus('synced', 'Saved · ' + new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}));
   } catch(e) { setSyncStatus('error', 'Save failed — check your connection'); }
 }
@@ -793,9 +916,12 @@ function switchView(view) {
   currentView = view;
   document.getElementById('viewTasks').classList.toggle('active', view === 'tasks');
   document.getElementById('viewCalendar').classList.toggle('active', view === 'calendar');
+  document.getElementById('viewGoals').classList.toggle('active', view === 'goals');
   document.getElementById('menuTasksBtn').classList.toggle('active', view === 'tasks');
   document.getElementById('menuCalBtn').classList.toggle('active', view === 'calendar');
+  document.getElementById('menuGoalsBtn').classList.toggle('active', view === 'goals');
   if (view === 'calendar') renderCalendar();
+  if (view === 'goals') renderGoals();
   closeMenu();
 }
 
@@ -1018,6 +1144,181 @@ function openDayPopup(dateStr, dayTasks) {
 function closeDayPopup() { document.getElementById('dayPopup').classList.remove('open'); }
 
 function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+
+/* ── GOALS ── */
+function openAddGoalModal() {
+  editingGoalId = null;
+  document.getElementById('goalModalTitle').textContent = 'Add Goal';
+  document.getElementById('goalModalText').value = '';
+  document.getElementById('goalModalDesc').value = '';
+  document.getElementById('goalModalDue').value = '';
+  document.getElementById('goalModal').classList.add('open');
+  setTimeout(() => document.getElementById('goalModalText').focus(), 80);
+}
+
+function openEditGoalModal(id) {
+  const goal = goals.find(g => g.id === id); if (!goal) return;
+  editingGoalId = id;
+  document.getElementById('goalModalTitle').textContent = 'Edit Goal';
+  document.getElementById('goalModalText').value = goal.title;
+  document.getElementById('goalModalDesc').value = goal.desc || '';
+  document.getElementById('goalModalDue').value = goal.due || '';
+  document.getElementById('goalModal').classList.add('open');
+}
+
+function closeGoalModal() {
+  document.getElementById('goalModal').classList.remove('open');
+  editingGoalId = null;
+}
+
+function handleGoalModalTap(e) {
+  if (e.target === document.getElementById('goalModal')) closeGoalModal();
+}
+
+function saveGoalModal() {
+  const title = document.getElementById('goalModalText').value.trim();
+  if (!title) { document.getElementById('goalModalText').style.borderColor = '#e05c5c'; return; }
+  const data = {
+    title,
+    desc: document.getElementById('goalModalDesc').value.trim(),
+    due: document.getElementById('goalModalDue').value,
+    status: 'not-started',
+    linkedTasks: [],
+  };
+  if (editingGoalId !== null) {
+    const g = goals.find(g => g.id === editingGoalId);
+    if (g) { data.status = g.status; data.linkedTasks = g.linkedTasks; Object.assign(g, data); }
+  } else {
+    goals.push({ id: Date.now(), ...data });
+  }
+  closeGoalModal(); renderGoals(); scheduleSave();
+}
+
+function cycleGoalStatus(id) {
+  const g = goals.find(g => g.id === id); if (!g) return;
+  const cycle = { 'not-started': 'in-progress', 'in-progress': 'done', 'done': 'not-started' };
+  g.status = cycle[g.status] || 'not-started';
+  renderGoals(); scheduleSave();
+}
+
+function deleteGoal(id) {
+  goals = goals.filter(g => g.id !== id);
+  renderGoals(); scheduleSave();
+}
+
+function openGoalTaskPicker(goalId) {
+  linkingGoalId = goalId;
+  const goal = goals.find(g => g.id === goalId); if (!goal) return;
+  document.getElementById('goalTaskPickerSub').textContent = `Linking tasks to: ${goal.title}`;
+  const list = document.getElementById('goalTaskPickerList');
+  list.innerHTML = '';
+  const available = tasks.filter(t => !t.done);
+  if (available.length === 0) {
+    list.innerHTML = '<div style="font-size:0.73rem;color:#64748b;font-style:italic;padding:0.5rem 0">No incomplete tasks available to link.</div>';
+  } else {
+    available.forEach(task => {
+      const isLinked = goal.linkedTasks.includes(task.id);
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex;align-items:center;gap:0.65rem;padding:0.6rem 0;border-bottom:1px solid #2a3349;cursor:pointer;-webkit-tap-highlight-color:transparent';
+      row.innerHTML = `
+        <div style="width:18px;height:18px;border-radius:4px;border:1.5px solid ${isLinked ? '#6fb58a' : '#2a3349'};background:${isLinked ? '#6fb58a' : 'transparent'};display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px;color:#0d1117">${isLinked ? '✓' : ''}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:0.78rem;color:#e2e8f0">${esc(task.text)}</div>
+          <div style="font-size:0.6rem;color:#64748b;margin-top:0.15rem">${task.category}</div>
+        </div>
+        <div style="font-size:0.58rem;letter-spacing:0.08em;text-transform:uppercase;padding:0.16rem 0.38rem;border-radius:3px;background:#1c2333;color:#64748b;border:1px solid #2a3349">T${task.tier}</div>`;
+      row.onclick = () => toggleTaskLink(goalId, task.id);
+      list.appendChild(row);
+    });
+  }
+  document.getElementById('goalTaskPicker').classList.add('open');
+}
+
+function toggleTaskLink(goalId, taskId) {
+  const goal = goals.find(g => g.id === goalId); if (!goal) return;
+  const idx = goal.linkedTasks.indexOf(taskId);
+  if (idx > -1) goal.linkedTasks.splice(idx, 1);
+  else goal.linkedTasks.push(taskId);
+  openGoalTaskPicker(goalId); // re-render picker
+  scheduleSave();
+}
+
+function closeGoalTaskPicker() {
+  document.getElementById('goalTaskPicker').classList.remove('open');
+  linkingGoalId = null;
+  renderGoals();
+}
+
+function goalDueLabel(d) {
+  if (!d) return '';
+  const today = todayStr();
+  if (d < today) return { text: 'Deadline passed', cls: 'overdue' };
+  const diff = Math.round((new Date(d) - new Date(today)) / 86400000);
+  if (diff === 0) return { text: 'Due today', cls: 'soon' };
+  if (diff <= 14) return { text: `${diff}d left`, cls: 'soon' };
+  return { text: new Date(d+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}), cls: '' };
+}
+
+function statusLabel(s) {
+  if (s === 'in-progress') return 'In Progress';
+  if (s === 'done') return 'Done';
+  return 'Not Started';
+}
+
+function renderGoals() {
+  const board = document.getElementById('goalsBoard');
+  if (!board) return;
+  board.innerHTML = '';
+
+  if (goals.length === 0) {
+    board.innerHTML = '<div class="goals-empty">No goals yet — tap + Add Goal to create your first one.</div>';
+    return;
+  }
+
+  // Sort: not-started and in-progress first, done last
+  const sorted = [...goals].sort((a, b) => {
+    const order = { 'not-started': 0, 'in-progress': 1, 'done': 2 };
+    return (order[a.status] || 0) - (order[b.status] || 0);
+  });
+
+  sorted.forEach(goal => {
+    const dl = goal.due ? goalDueLabel(goal.due) : null;
+    const linkedTaskObjs = (goal.linkedTasks || []).map(id => tasks.find(t => t.id === id)).filter(Boolean);
+
+    const card = document.createElement('div');
+    card.className = `goal-card status-${goal.status}`;
+    card.innerHTML = `
+      <div class="goal-card-top">
+        <div class="goal-status-badge ${goal.status}" onclick="cycleGoalStatus(${goal.id})" title="Tap to change status">${statusLabel(goal.status)}</div>
+        <div class="goal-body">
+          <div class="goal-title-text">${esc(goal.title)}</div>
+          ${goal.desc ? `<div class="goal-desc">${esc(goal.desc)}</div>` : ''}
+          <div class="goal-meta">
+            ${dl ? `<span class="goal-due ${dl.cls}">${dl.text}</span>` : ''}
+          </div>
+        </div>
+        <div class="goal-actions">
+          <button class="goal-action-btn" onclick="openGoalTaskPicker(${goal.id})" title="Link tasks">🔗</button>
+          <button class="goal-action-btn" onclick="openEditGoalModal(${goal.id})" title="Edit">✎</button>
+          <button class="goal-action-btn delete" onclick="deleteGoal(${goal.id})" title="Delete">✕</button>
+        </div>
+      </div>
+      ${linkedTaskObjs.length > 0 ? `
+        <div class="goal-link-task">
+          <div class="goal-link-label">Linked Tasks (${linkedTaskObjs.filter(t=>!t.done).length} remaining)</div>
+          <div class="goal-linked-tasks">
+            ${linkedTaskObjs.map(t => `
+              <div class="goal-linked-task-item${t.done ? ' done-task' : ''}">
+                <div class="goal-linked-task-dot t${t.tier}"></div>
+                <span style="flex:1">${esc(t.text)}</span>
+                <span style="font-size:0.58rem;color:#64748b">${t.category}</span>
+              </div>`).join('')}
+          </div>
+        </div>` : ''}`;
+    board.appendChild(card);
+  });
+}
 
 /* ── LISTENERS ── */
 document.getElementById('quickTaskInput').addEventListener('keydown',e=>{if(e.key==='Enter')quickAdd();});
