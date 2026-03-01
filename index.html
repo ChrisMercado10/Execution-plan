@@ -335,16 +335,29 @@ background: var(–accent); color: #0d1117;
 width: 18px; height: 18px; border-radius: 50%;
 display: flex; align-items: center; justify-content: center; font-size: 0.6rem;
 }
-.cal-task-dot {
-font-size: 0.55rem; line-height: 1.3; padding: 1px 3px; border-radius: 3px;
-white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
+/* Single task: one solid dot. Multiple tasks: ring of dots */
+.cal-indicators {
+display: flex; gap: 3px; flex-wrap: wrap;
+margin-top: 4px; padding: 0 1px;
 }
-.cal-task-dot.t1 { background: var(–t1-bg); color: var(–t1); }
-.cal-task-dot.t2 { background: var(–t2-bg); color: var(–t2); }
-.cal-task-dot.t3 { background: var(–t3-bg); color: var(–t3); }
-.cal-task-dot.t4 { background: var(–t4-bg); color: var(–t4); }
-.cal-task-dot.done { opacity: 0.3; }
-.cal-more { font-size: 0.55rem; color: var(–muted); padding: 1px 3px; }
+/* Single indicator — solid filled circle */
+.cal-dot {
+width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+/* Multiple indicator — outlined ring */
+.cal-ring {
+width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+border: 1.5px solid currentColor; background: transparent;
+}
+.cal-dot.t1, .cal-ring.t1 { background: #e05c5c; color: #e05c5c; }
+.cal-dot.t2, .cal-ring.t2 { background: #d4874a; color: #d4874a; }
+.cal-dot.t3, .cal-ring.t3 { background: #6fb58a; color: #6fb58a; }
+.cal-dot.t4, .cal-ring.t4 { background: #4a9970; color: #4a9970; }
+.cal-ring.t1 { background: transparent !important; }
+.cal-ring.t2 { background: transparent !important; }
+.cal-ring.t3 { background: transparent !important; }
+.cal-ring.t4 { background: transparent !important; }
+.cal-dot.done, .cal-ring.done { opacity: 0.3; }
 
 /* ── OVERLAY PANELS ── */
 .overlay-backdrop {
@@ -511,6 +524,31 @@ padding: 0.4rem 0.65rem; display: flex; align-items: center; gap: 0.5rem;
 
 .goals-empty { font-size: 0.72rem; color: #64748b; font-style: italic; padding: 1rem 0; text-align: center; }
 
+/* ── TASK DETAIL POPUP ── */
+.task-detail-row {
+display: flex; align-items: center; gap: 0.5rem;
+padding: 0.5rem 0; border-bottom: 1px solid #2a3349;
+font-size: 0.7rem; color: #64748b;
+}
+.task-detail-row:last-child { border-bottom: none; }
+.task-detail-label {
+font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase;
+color: #64748b; width: 56px; flex-shrink: 0;
+}
+.task-detail-val { color: #e2e8f0; flex: 1; line-height: 1.5; }
+.task-detail-notes {
+background: #1c2333 !important; border-radius: 6px;
+padding: 0.65rem 0.8rem; margin-top: 0.75rem;
+font-size: 0.75rem; color: #e2e8f0; line-height: 1.6;
+white-space: pre-wrap; border: 1px solid #2a3349;
+}
+.task-detail-notes-label {
+font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase;
+color: #64748b; margin-bottom: 0.4rem;
+}
+/* Make task cards tappable */
+.task-body { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+
 </style>
 </head>
 <body>
@@ -657,8 +695,21 @@ padding: 0.4rem 0.65rem; display: flex; align-items: center; gap: 0.5rem;
   </div>
 </div>
 
-<!-- CONFIG BANNER -->
+<!-- TASK DETAIL POPUP -->
 
+<div class="overlay-backdrop" id="taskDetailPopup" onclick="closeTaskDetail()">
+  <div class="overlay-panel" onclick="event.stopPropagation()">
+    <div class="day-popup-header">
+      <div class="day-popup-title" id="taskDetailTitle"></div>
+      <button class="ep-btn" onclick="closeTaskDetail()" style="padding:0.3rem 0.6rem;background:#1c2333!important;border-color:#2a3349!important;color:#e2e8f0!important">✕</button>
+    </div>
+    <div id="taskDetailContent"></div>
+    <div style="margin-top:1rem;display:flex;gap:0.5rem;justify-content:flex-end">
+      <button class="ep-btn" id="taskDetailEditBtn" style="background:#1c2333!important;border-color:#2a3349!important;color:#6fb58a!important" onclick="editFromDetail()">✎ Edit</button>
+    </div>
+  </div>
+</div>
+<!-- CONFIG BANNER -->
 <div class="config-banner" id="configBanner" style="display:none">
   <strong>⚙️ One-time setup required</strong><br>
   Paste your Google Apps Script URL to enable cloud sync.
@@ -1055,12 +1106,11 @@ function render() {
         card.innerHTML=`
           <div class="task-main">
             <button class="task-check" onclick="toggleDone(${task.id})">${task.done?'✓':''}</button>
-            <div class="task-body">
+            <div class="task-body" onclick="openTaskDetail(${task.id})">
               <div class="task-text">${esc(task.text)}</div>
               <div class="task-meta">
                 <span class="task-category">${task.category}</span>
                 ${dueLabel?`<span class="task-due ${dc}">${dueLabel}</span>`:''}
-                ${task.notes&&!noteOpen?`<span class="task-note-preview">📝 ${esc(task.notes)}</span>`:''}
               </div>
             </div>
             <div class="task-actions">
@@ -1118,12 +1168,17 @@ function renderCalendar() {
     cell.appendChild(numEl);
     if(dayTasks.length){
       const sorted=[...dayTasks].sort((a,b)=>a.done-b.done);
-      sorted.slice(0,3).forEach(task=>{
-        const dot=document.createElement('div');
-        dot.className=`cal-task-dot t${task.tier}${task.done?' done':''}`;
-        dot.textContent=task.text; cell.appendChild(dot);
+      const isMultiple = dayTasks.length > 1;
+      const indicators = document.createElement('div');
+      indicators.className = 'cal-indicators';
+      // Show up to 5 indicators max
+      sorted.slice(0,5).forEach(task=>{
+        const el = document.createElement('div');
+        // Single task = solid dot, multiple tasks = ring
+        el.className = (isMultiple ? 'cal-ring' : 'cal-dot') + ` t${task.tier}${task.done?' done':''}`;
+        indicators.appendChild(el);
       });
-      if(sorted.length>3){ const more=document.createElement('div'); more.className='cal-more'; more.textContent=`+${sorted.length-3} more`; cell.appendChild(more); }
+      cell.appendChild(indicators);
       cell.addEventListener('click',()=>openDayPopup(dateStr,dayTasks));
     }
     grid.appendChild(cell);
@@ -1318,6 +1373,64 @@ function renderGoals() {
         </div>` : ''}`;
     board.appendChild(card);
   });
+}
+
+
+/* ── TASK DETAIL POPUP ── */
+let taskDetailId = null;
+
+function openTaskDetail(id) {
+  const task = tasks.find(t => t.id === id); if (!task) return;
+  taskDetailId = id;
+  const dc = dueClass(task.due);
+  const dueLabel = formatDue(task.due);
+
+  document.getElementById('taskDetailTitle').textContent = task.text;
+  document.getElementById('taskDetailEditBtn').setAttribute('data-id', id);
+
+  const content = document.getElementById('taskDetailContent');
+  content.innerHTML = '';
+
+  // Tier row
+  const tierRow = document.createElement('div'); tierRow.className = 'task-detail-row';
+  tierRow.innerHTML = `<div class="task-detail-label">Tier</div><div class="task-detail-val"><span style="font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.18rem 0.42rem;border-radius:3px;background:#1c2333;border:1px solid #2a3349;color:#6fb58a">T${task.tier}</span></div>`;
+  content.appendChild(tierRow);
+
+  // Category row
+  const catRow = document.createElement('div'); catRow.className = 'task-detail-row';
+  catRow.innerHTML = `<div class="task-detail-label">Category</div><div class="task-detail-val">${esc(task.category)}</div>`;
+  content.appendChild(catRow);
+
+  // Due date row
+  if (task.due) {
+    const dueRow = document.createElement('div'); dueRow.className = 'task-detail-row';
+    dueRow.innerHTML = `<div class="task-detail-label">Due</div><div class="task-detail-val" style="color:${dc==='overdue'?'#e05c5c':dc==='today'?'#6fb58a':'#e2e8f0'}">${dueLabel}</div>`;
+    content.appendChild(dueRow);
+  }
+
+  // Status row
+  const statusRow = document.createElement('div'); statusRow.className = 'task-detail-row';
+  statusRow.innerHTML = `<div class="task-detail-label">Status</div><div class="task-detail-val" style="color:${task.done?'#4a9970':'#e2e8f0'}">${task.done ? '✓ Completed' : 'Incomplete'}</div>`;
+  content.appendChild(statusRow);
+
+  // Notes
+  if (task.notes) {
+    const notesWrap = document.createElement('div');
+    notesWrap.innerHTML = `<div class="task-detail-notes-label">Notes</div><div class="task-detail-notes">${esc(task.notes)}</div>`;
+    content.appendChild(notesWrap);
+  }
+
+  document.getElementById('taskDetailPopup').classList.add('open');
+}
+
+function closeTaskDetail() {
+  document.getElementById('taskDetailPopup').classList.remove('open');
+  taskDetailId = null;
+}
+
+function editFromDetail() {
+  closeTaskDetail();
+  if (taskDetailId !== null) openEditModal(taskDetailId);
 }
 
 /* ── LISTENERS ── */
