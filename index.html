@@ -724,7 +724,7 @@ color: #64748b; margin-bottom: 0.4rem;
   <button class="cb-btn" onclick="saveScriptUrl()">Connect to Google Sheets</button>
 </div>
 
-<div class="sync-bar">
+<div class="sync-bar" onclick="loadFromSheets()" style="cursor:pointer" title="Tap to retry sync">
   <div class="sync-dot" id="syncDot"></div>
   <span id="syncLabel">Connecting…</span>
 </div>
@@ -939,7 +939,14 @@ async function sheetsPost(action, data) {
   return res.json();
 }
 async function loadFromSheets() {
+  // Safety net — always hide loading after 6 seconds no matter what
+  const loadingTimeout = setTimeout(() => {
+    hideLoading(); renderCategoryUI(); render(); renderCalendar();
+    setSyncStatus('error', 'Load timed out — pull to retry');
+  }, 6000);
+
   if (!SCRIPT_URL) {
+    clearTimeout(loadingTimeout);
     document.getElementById('configBanner').style.display = 'block';
     setSyncStatus('error', 'Not connected — paste your script URL above');
     hideLoading(); renderCategoryUI(); render(); renderCalendar(); return;
@@ -951,7 +958,8 @@ async function loadFromSheets() {
     customCats = JSON.parse(catRes.cats || '[]');
     goals = JSON.parse(goalRes.goals || '[]');
     setSyncStatus('synced', 'Synced · ' + new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}));
-  } catch(e) { setSyncStatus('error', 'Could not connect — check your URL'); }
+  } catch(e) { setSyncStatus('error', 'Could not connect — tap to retry'); }
+  clearTimeout(loadingTimeout);
   hideLoading(); renderCategoryUI(); render(); renderCalendar();
 }
 function hideLoading() { document.getElementById('loadingOverlay').classList.add('hidden'); }
